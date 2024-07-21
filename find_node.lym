@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description>find_node</description>
+ <version/>
+ <category>pymacros</category>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>false</autorun>
+ <autorun-early>false</autorun-early>
+ <shortcut/>
+ <show-in-menu>true</show-in-menu>
+ <group-name/>
+ <menu-path>macros_menu.end</menu-path>
+ <interpreter>python</interpreter>
+ <dsl-interpreter-name/>
+ <text># Jaseung, Apr 2021
+# Usage: Select a cell or PCell instance, go to Macro menu and select test.
+# This script flattens all the selected cell to all hierarchy.
+
+from pya import *
+import re
+
+def find_node():
+  # Applicationクラスを起動
+  app = Application.instance()
+  mw = app.main_window()
+
+  # layoutのcurrent_viewを取得
+  lv = mw.current_view()
+  
+  # cellの取得
+  cell = lv.active_cellview().cell
+
+  # layoutの取得
+  layout = cell.layout()
+
+  # layer index information
+  index_info = dict()
+  for i,num in zip(layout.layer_infos(),layout.layer_indexes()):
+    index = ','.join([str(v) for v in str(i).split('/')])
+    index_info[num] = index
+  
+  # menubarから全選択を実行
+  menu = mw.menu()
+  menu.action('edit_menu.select_menu.select_all').trigger()
+  
+  # Layoutの単位を獲得
+  DBU = 1 / cell.layout().dbu
+  
+  tanshi_position = dict()
+  
+  # それぞれのレイアウトのオブジェクトについて処理
+  
+  for sel in lv.each_object_selected():
+      
+    layer = sel.layer
+    layer_index = index_info[layer]
+    shape = sel.shape
+
+    if shape.is_text():
+      text = shape.text
+      text_pos = list(map(int,text.trans.to_s().split()[1].split(',')))
+      tanshi_position[text.string] = [text_pos,]
+        
+  # net tracer
+  tracer = NetTracer()
+  tech = NetTracerConnectivity()
+  flag = 0
+  for line in layout.technology().to_xml().split('\n'):
+    if 'connectivity' in line:
+      flag = 1
+      
+    if flag == 1:
+      target1 =  'connection'
+      if target1 in line:
+        words = re.split('[,]',line)
+        print(words[0],words[1],words[2])
+        tech.connection(words[0][len(target1)+2:],words[1],words[2][:-1*len(target1)-3])
+      target2 = 'symbols'
+      if target2 in line:
+        words = [v for v in re.split("['=]",line) if v != '']
+        tech.symbol(words[0][len(target2)+2:],words[1])
+          
+    if '/connectivity' in line:
+      flag = 0
+  
+  name = 'outp'
+  print(tanshi_position[name][0],tanshi_position[name][1])
+  tracer.trace(tech,layout,cell,Point.new(tanshi_position[name][0],tanshi_position[name][1]),layout.find_layer(LayerInfo.new(36, 10)))
+
+
+  marker = Marker.new()
+  lv.add_marker(marker)
+
+  trace_result_cell = layout.create_cell('trace_result')
+  for it in tracer.each_element():
+    print(it.layer(),it.shape())
+    # trace_result_cell.shapes(layout.layer(5,0)).insert(it.shape(),it.trans())
+  
+# execute function
+find_node()  
+
+</text>
+</klayout-macro>
