@@ -11,7 +11,8 @@ class Resource:
         self.name = name
         self.resource_type = resource_type
         self.initial_setup_id = initial_setup_id  # 現在のセットアップIDを設定
-        self.setup_condition = setup_condition  # 現在のセットアップ条件を設定
+        # self.setup_condition = setup_condition  # 現在のセットアップ条件を設定
+        self.setup_condition = self.initial_setup_id  # 現在のセットアップ条件を設定
 
         self.pre_exec_id = pre_exec_id
         self.post_exec_id = post_exec_id

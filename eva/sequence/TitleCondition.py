@@ -26,7 +26,7 @@ class TitleCondition:
         
     def __repr__(self):
         return (f"\t{self.title}\t{self.auto_power_off}\t{self.timeout_enabled}\t{self.timeout_value}\t"
-                f"{self.timeout_ignore}\t{self.dut_iteration_mode}\t{self.comment}\t{self.default_code}\t"
+                f"{self.timeout_ignore}\t{self.dutiteration_mode}\t{self.comment}\t{self.default_code}\t"
                 f"{self.default_code_comment}\t{self.num_of_return_code}\t{self.return_code}")
 
     @staticmethod

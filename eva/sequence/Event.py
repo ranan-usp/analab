@@ -33,7 +33,7 @@ class Event:
 
     def __repr__(self):
 
-        if self.event_type in ["RelayOnEvent","PowerOnEvent","PowerOffEvent","RelayOffEvent"]:
+        if self.event_type in ["RelayOnEvent","PowerOnEvent","PowerOffEvent","RelayOffEvent","SetupEvent"]:
             pass
         elif self.event_type in ["CallFunctionEvent","MeasureEvent"]:
             self.comment_visible = 0
